@@ -21,7 +21,7 @@ void mutarePiesa(int jucator, int& mutarea);
 void drawButton(int x, int y, int latime, int inalt, const char* text, int culoare, int dimtext);
 void deseneazaPiesa(int linia, int coloana, int culoare);
 void mutarePiesa(int jucator);
-int castigat(int jucator, int mutarea);
+int castigat(int jucator); //, int mutarea);
 void Meniu();
 void tabla();
 void mutare();
@@ -135,6 +135,7 @@ void mutarePiesa(int jucator)
 {
     int linia1,coloana1,linia2,coloana2,x,y;
     int click=false;
+
     do
     {
         if(ismouseclick(WM_LBUTTONDOWN) && !click)
@@ -146,8 +147,12 @@ void mutarePiesa(int jucator)
             linia1=(y-sus)/latura+1;
             coloana1=(x-stanga)/latura+1;
         }
+
         if(TablaDeJoc[linia1][coloana1]!=jucator)
             click=false;
+
+        if(jucator==2 && click && vulpeincoltita(linia1,coloana1))
+            castigat(1);
     }
     while (!click);
 
@@ -170,12 +175,6 @@ void mutarePiesa(int jucator)
             click=false;
         else if(jucator==2 && ((linia2!=linia1+1 && linia2!=linia1-1) || (coloana2!=coloana1+1 && coloana2!=coloana1-1)) )
             click=false;
-            else
-                if(vulpeincoltita(linia2,coloana2)==1)
-                    {
-                        ok=0;
-                        click=false;
-                    }
     }
     while (!click);
 
@@ -183,19 +182,31 @@ void mutarePiesa(int jucator)
         TablaDeJoc[linia2][coloana2]=jucator;
         deseneazaPiesa(linia1,coloana1,FUNDAL);
         deseneazaPiesa(linia2,coloana2,culoare[jucator]);
+        if(jucator==2 && TablaDeJoc[linia2+1][coloana2+1]==-1 && TablaDeJoc[linia2+1][coloana2-1]==-1)
+            castigat(2);
 }
 
 
 
 int castigat(int jucator)
 {
-    for(int i=1; i<=numar; i++)
-        if(TablaDeJoc[numar][i]==jucator && jucator==2)
-            return 2;
-      if(ok==0)
-        return 1;
+    for(int i=1;i<=8;i++)
+            for(int j=1;j<=8;j++)
+                TablaDeJoc[i][j]=0;
+    if(jucator==2)
+    {
+        settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
+        outtextxy(1000,400,"VULPEA A CASTIGAT!");
+    }
+    else if(jucator==1)
+    {
+        settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
+        outtextxy(1000,400,"CAINII AU CASTIGAT!");
+    }
 
-    return 0;
+    delay(300);
+    closegraph();
+    Meniu();
 }
 
 void desen()
@@ -217,6 +228,12 @@ void desen()
 
 void tabla()
 {
+    for(int i=0;i<=9;i++){
+            TablaDeJoc[0][i]=-1;
+            TablaDeJoc[i][0]=-1;
+            TablaDeJoc[9][i]=-1;
+            TablaDeJoc[i][9]=-1;
+    }
     int screenx=GetSystemMetrics(SM_CXSCREEN);
     int screeny=GetSystemMetrics(SM_CYSCREEN);
     initwindow(screenx,screeny,"Cainii si vulpea");
@@ -242,20 +259,9 @@ void mutare()
         mutarePiesa(1);
         mutarePiesa(2);
     }
-    while (!castigat(1) && !castigat(2));
+    while (1);
 
-    if(castigat(2)==2)
-    {
-        settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        outtextxy(1000,400,"VULPEA A CASTIGAT!");
-        Meniu();
-    }
-    else
-    {
-        settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        outtextxy(1000,400,"CAINII AU CASTIGAT!");
-        Meniu();
-    }
+
 
     //getch();
     //closegraph();

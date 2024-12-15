@@ -10,6 +10,7 @@ using namespace std;
 #define FUNDAL CYAN
 
 int stanga,sus,width,height,latura, numar, ok=1;
+int vulpei,vulpej;
 bool gata;
 
 int culoare[3]= {FUNDAL,LIGHTRED,YELLOW};
@@ -150,9 +151,6 @@ void mutarePiesa(int jucator)
 
         if(TablaDeJoc[linia1][coloana1]!=jucator)
             click=false;
-
-        if(jucator==2 && click && vulpeincoltita(linia1,coloana1))
-            castigat(1);
     }
     while (!click);
 
@@ -178,12 +176,23 @@ void mutarePiesa(int jucator)
     }
     while (!click);
 
+
+
         TablaDeJoc[linia1][coloana1]=0;
         TablaDeJoc[linia2][coloana2]=jucator;
         deseneazaPiesa(linia1,coloana1,FUNDAL);
         deseneazaPiesa(linia2,coloana2,culoare[jucator]);
-        if(jucator==2 && TablaDeJoc[linia2+1][coloana2+1]==-1 && TablaDeJoc[linia2+1][coloana2-1]==-1)
-            castigat(2);
+
+        if(jucator==2){
+            vulpei=linia2;
+            vulpej=coloana2;
+        }
+        if (jucator == 1 && vulpeincoltita(vulpei, vulpej)) {
+            castigat(1); // Dogs win
+        }
+        else if (jucator == 2 && TablaDeJoc[linia2 + 1][coloana2 + 1] == -1 && TablaDeJoc[linia2 + 1][coloana2 - 1] == -1) {
+            castigat(2); // Fox wins
+        }
 }
 
 

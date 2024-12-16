@@ -195,9 +195,9 @@ void mutarePiesa(int jucator)
         if (jucator == 1 && vulpeincoltita(vulpei, vulpej)) {
             castigat(1); // Dogs win
         }
-        else if (jucator == 2 && TablaDeJoc[linia2 + 1][coloana2 + 1] == -1 && TablaDeJoc[linia2 + 1][coloana2 - 1] == -1) {
-            castigat(2); // Fox wins
-        }
+        if (jucator == 2 && linia2 == 8)
+            castigat(2); // Fox wins by reaching row 8
+
 }
 
 
@@ -242,7 +242,8 @@ void desen()
 
 void tabla()
 {
-    for(int i=0;i<=9;i++){
+    for(int i=0;i<=9;i++)
+    {
             TablaDeJoc[0][i]=-1;
             TablaDeJoc[i][0]=-1;
             TablaDeJoc[9][i]=-1;
@@ -279,100 +280,135 @@ void mutarePvP()
 bool strategyStart()
 {
 //check if the fox is next to a dog
-return ( (vulpei==caine[1][0]-1 && (vulpej==caine[1][1]+1 || vulpej==caine[1][1]-1)) || (vulpei==caine[2][0]-1 && (vulpej==caine[2][1]+1 || vulpej==caine[2][1]-1)) || (vulpei==caine[3][0]-1 && (vulpej==caine[3][1]+1 || vulpej==caine[3][1]-1)) || (vulpei==caine[4][0]-1 && (vulpej==caine[4][1]+1 || vulpej==caine[4][1]-1)));
+return ( (vulpei==(caine[1][0]-1) && (vulpej==(caine[1][1]+1) || vulpej==(caine[1][1]-1))) || (vulpei==(caine[2][0]-1) && (vulpej==(caine[2][1]+1) || vulpej==(caine[2][1]-1))) || (vulpei==(caine[3][0]-1) && (vulpej==(caine[3][1]+1) || vulpej==(caine[3][1]-1))) || (vulpei==(caine[4][0]-1) && (vulpej==(caine[4][1]+1) || vulpej==(caine[4][1]-1))));
 
 }
 
 void mutarePC(int jucator)
 {
-    int coloana, linie,liniemax,mutat;
-    bool mutareValida = false;
+    int currentColumn, currentLine, maxLine, selectedDog;
+    bool moveValid = false;
 
-    if (jucator == 1) // Calculatorul reprezintă câinii
+    // Logic for the AI controlling the dogs
+    if (jucator == 1) // Player = Dogs
     {
-        if(initPC)
+        // Initialization step - Place the dogs at their starting positions
+        if (initPC)
         {
-            int col=2;
-            for(int i=1;i<=4;i++)
+            int col = 2; // Starting column for the first dog
+            for (int i = 1; i <= 4; i++)
             {
-                caine[i][0]=8;
-                caine[i][1]=col;
-                col+=2;
+                caine[i][0] = 8; // All dogs start in row 8
+                caine[i][1] = col; // Assign column positions
+                col += 2; // Move to the next column
             }
-            initPC=false;
+            initPC = false; // Mark initialization complete
         }
 
-        if(strategyStart())
+        // **Strategy Start**: Attempt to block the fox
+        if (strategyStart())
         {
-            for(int i=1;i<=4;i++)
+            bestcoloana = vulpej; // Target the fox's current column
+
+            for (int i = 1; i <= 4; i++)
             {
-                coloana=caine[i][1];
-                if(abs(vulpej-bestcoloana)<=abs(vulpej-coloana) && caine[i][0]>1)
+                // Look for the dog closest to the fox
+                if (abs(vulpej - bestcoloana) <= abs(vulpej - caine[i][1]) && caine[i][0] > 1)
                 {
-                    bestcoloana=coloana;
-                    bestcaine=i;
+                    // If the dog can move in the correct direction (left or right diagonal)
+                    if ((sens[i] == 's' && TablaDeJoc[caine[i][0] - 1][caine[i][1] - 1] == 0) ||
+                        (sens[i] == 'd' && TablaDeJoc[caine[i][0] - 1][caine[i][1] + 1] == 0))
+                    {
+                        bestcoloana = caine[i][1];
+                        bestcaine = i;
+                    }
                 }
             }
 
-            coloana=caine[bestcaine][1];
-            linie=caine[bestcaine][0];
+            // Execute the chosen move
+            currentColumn = caine[bestcaine][1];
+            currentLine = caine[bestcaine][0];
 
-            TablaDeJoc[linie][coloana]=0;
-            if(sens[bestcaine]=='s')
+            if (sens[bestcaine] == 's') // Move diagonally left
             {
-                TablaDeJoc[linie-1][coloana-1]=jucator;
-                deseneazaPiesa(linie,coloana,FUNDAL);
-                deseneazaPiesa(linie-1,coloana-1,culoare[jucator]);
-                sens[bestcaine]='d';
-                caine[bestcaine][0]=linie-1; caine[bestcaine][1]=coloana-1;
+                TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
+                TablaDeJoc[currentLine - 1][currentColumn - 1] = jucator; // Update board
+                deseneazaPiesa(currentLine, currentColumn, FUNDAL); // Clear old position
+                deseneazaPiesa(currentLine - 1, currentColumn - 1, culoare[jucator]); // Draw new position
+                sens[bestcaine] = 'd'; // Switch direction
+                caine[bestcaine][0] = currentLine - 1;
+                caine[bestcaine][1] = currentColumn - 1;
             }
-            else if(sens[bestcaine]=='d')
+            else if (sens[bestcaine] == 'd') // Move diagonally right
             {
-                TablaDeJoc[linie-1][coloana+1]=jucator;
-                deseneazaPiesa(linie,coloana,FUNDAL);
-                deseneazaPiesa(linie-1,coloana+1,culoare[jucator]);
-                sens[bestcaine]='s';
-                caine[bestcaine][0]=linie-1; caine[bestcaine][1]=coloana+1;
+                TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
+                TablaDeJoc[currentLine - 1][currentColumn + 1] = jucator; // Update board
+                deseneazaPiesa(currentLine, currentColumn, FUNDAL); // Clear old position
+                deseneazaPiesa(currentLine - 1, currentColumn + 1, culoare[jucator]); // Draw new position
+                sens[bestcaine] = 's'; // Switch direction
+                caine[bestcaine][0] = currentLine - 1;
+                caine[bestcaine][1] = currentColumn + 1;
             }
         }
+        // **Fallback Strategy**: Find the highest dog and advance it forward
         else
         {
-            liniemax=0;mutat=1;
-            for(int i=1;i<=4;i++)
+            maxLine = 0;
+            selectedDog = 1;
+
+            // Iterate over all dogs to find the one in the furthest row that can move
+            for (int i = 1; i <= 4; i++)
             {
-                if(caine[i][0]>liniemax && caine[i][0]>1)
+                currentColumn = caine[i][1];
+                currentLine = caine[i][0];
+                if (currentLine > maxLine && TablaDeJoc[currentLine - 1][currentColumn] == 0)
                 {
-                    liniemax=caine[i][0];
-                    mutat=i;
+                    maxLine = currentLine;
+                    selectedDog = i;
                 }
             }
-            coloana=caine[mutat][1];
-            linie=caine[mutat][0];
 
-            if(sens[mutat]=='s')
+            // Move the selected dog
+            currentColumn = caine[selectedDog][1];
+            currentLine = caine[selectedDog][0];
+
+            if (sens[selectedDog] == 's') // Move diagonally left
             {
-                TablaDeJoc[linie-1][coloana-1]=jucator;
-                deseneazaPiesa(linie,coloana,FUNDAL);
-                deseneazaPiesa(linie-1,coloana-1,culoare[jucator]);
-                sens[mutat]='d';
-                caine[mutat][0]=linie-1; caine[mutat][1]=coloana-1;
+                TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
+                TablaDeJoc[currentLine - 1][currentColumn - 1] = jucator; // Update new position on board
+                deseneazaPiesa(currentLine, currentColumn, FUNDAL); // Clear old position
+                deseneazaPiesa(currentLine - 1, currentColumn - 1, culoare[jucator]); // Draw new position
+                sens[selectedDog] = 'd'; // Switch direction
+                caine[selectedDog][0] = currentLine - 1;
+                caine[selectedDog][1] = currentColumn - 1;
             }
-            else if(sens[mutat]=='d')
+            else if (sens[selectedDog] == 'd') // Move diagonally right
             {
-                TablaDeJoc[linie-1][coloana+1]=jucator;
-                deseneazaPiesa(linie,coloana,FUNDAL);
-                deseneazaPiesa(linie-1,coloana+1,culoare[jucator]);
-                sens[mutat]='s';
-                caine[mutat][0]=linie-1; caine[mutat][1]=coloana+1;
+                TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
+                TablaDeJoc[currentLine - 1][currentColumn + 1] = jucator; // Update new position on board
+                deseneazaPiesa(currentLine, currentColumn, FUNDAL); // Clear old position
+                deseneazaPiesa(currentLine - 1, currentColumn + 1, culoare[jucator]); // Draw new position
+                sens[selectedDog] = 's'; // Switch direction
+                caine[selectedDog][0] = currentLine - 1;
+                caine[selectedDog][1] = currentColumn + 1;
             }
         }
+        for(int p=1;p<=8;p++)
+        {
+            for(int q=1;q<=8;q++)
+                cout<<TablaDeJoc[p][q]<<" ";
+            cout<<endl;
+        }
+        cout<<endl<<endl;
     }
     else if (jucator == 2)
     {
+        // Logic for controlling the fox (to be implemented)
     }
 }
 
-void mutarePvC(int jucator){
+void mutarePvC(int jucator)
+{
     do
     {
 

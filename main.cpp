@@ -196,8 +196,7 @@ void mutarePiesa(int jucator)
             castigat(1); // Dogs win
         }
         if (jucator == 2 && linia2 == 8)
-            castigat(2); // Fox wins by reaching row 8
-
+            castigat(2);// Fox wins by reaching row 8
 }
 
 
@@ -217,7 +216,6 @@ int castigat(int jucator)
         settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
         outtextxy(1000,400,"CAINII AU CASTIGAT!");
     }
-
     delay(300);
     closegraph();
     Meniu();
@@ -288,6 +286,7 @@ void mutarePC(int jucator)
 {
     int currentColumn, currentLine, maxLine, selectedDog;
     bool moveValid = false;
+
 
     // Logic for the AI controlling the dogs
     if (jucator == 1) // Player = Dogs
@@ -367,7 +366,8 @@ void mutarePC(int jucator)
                     selectedDog = i;
                 }
             }
-
+            if(caine[1][0]==1 && caine[2][0]==1 && caine[3][0]==1 && caine[4][0]==1)
+                castigat(2);
             // Move the selected dog
             currentColumn = caine[selectedDog][1];
             currentLine = caine[selectedDog][0];
@@ -393,6 +393,9 @@ void mutarePC(int jucator)
                 caine[selectedDog][1] = currentColumn + 1;
             }
         }
+
+
+
         for(int p=1;p<=8;p++)
         {
             for(int q=1;q<=8;q++)
@@ -409,6 +412,9 @@ void mutarePC(int jucator)
 
 void mutarePvC(int jucator)
 {
+    initPC=true;
+    for(int i=1;i<=4;i++)
+        sens[i]='s';
     do
     {
 

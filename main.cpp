@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include<graphics.h>
 #include<conio.h>
+#include<math.h>
 
 using namespace std;
 
@@ -10,8 +11,12 @@ using namespace std;
 #define FUNDAL CYAN
 
 int stanga,sus,width,height,latura, numar, ok=1;
-int vulpei,vulpej;
+int vulpei=1,vulpej=5;
+int bestcoloana=2,bestcaine=4,caine[5][2],ordine=1;
+char sens[5]={'s','s','s','s','s'}; //s sau d (stanga sau dreapta) pt caine
+
 bool gata;
+bool initPC=true;
 
 int culoare[3]= {FUNDAL,LIGHTRED,YELLOW};
 
@@ -260,35 +265,142 @@ void tabla()
     deseneazaPiesa(1,numar/2+1,culoare[2]);
 }
 
-void mutare()
-{
 
+void mutarePvP()
+{
     do
     {
         mutarePiesa(1);
         mutarePiesa(2);
     }
     while (1);
-
-
-
-    //getch();
-    //closegraph();
 }
 
+bool strategyStart()
+{
+//check if the fox is next to a dog
+return ( (vulpei==caine[1][0]-1 && (vulpej==caine[1][1]+1 || vulpej==caine[1][1]-1)) || (vulpei==caine[2][0]-1 && (vulpej==caine[2][1]+1 || vulpej==caine[2][1]-1)) || (vulpei==caine[3][0]-1 && (vulpej==caine[3][1]+1 || vulpej==caine[3][1]-1)) || (vulpei==caine[4][0]-1 && (vulpej==caine[4][1]+1 || vulpej==caine[4][1]-1)));
 
+}
+
+void mutarePC(int jucator)
+{
+    int coloana, linie,liniemax,mutat;
+    bool mutareValida = false;
+
+    if (jucator == 1) // Calculatorul reprezintă câinii
+    {
+        if(initPC)
+        {
+            int col=2;
+            for(int i=1;i<=4;i++)
+            {
+                caine[i][0]=8;
+                caine[i][1]=col;
+                col+=2;
+            }
+            initPC=false;
+        }
+
+        if(strategyStart())
+        {
+            for(int i=1;i<=4;i++)
+            {
+                coloana=caine[i][1];
+                if(abs(vulpej-bestcoloana)<=abs(vulpej-coloana) && caine[i][0]>1)
+                {
+                    bestcoloana=coloana;
+                    bestcaine=i;
+                }
+            }
+
+            coloana=caine[bestcaine][1];
+            linie=caine[bestcaine][0];
+
+            TablaDeJoc[linie][coloana]=0;
+            if(sens[bestcaine]=='s')
+            {
+                TablaDeJoc[linie-1][coloana-1]=jucator;
+                deseneazaPiesa(linie,coloana,FUNDAL);
+                deseneazaPiesa(linie-1,coloana-1,culoare[jucator]);
+                sens[bestcaine]='d';
+                caine[bestcaine][0]=linie-1; caine[bestcaine][1]=coloana-1;
+            }
+            else if(sens[bestcaine]=='d')
+            {
+                TablaDeJoc[linie-1][coloana+1]=jucator;
+                deseneazaPiesa(linie,coloana,FUNDAL);
+                deseneazaPiesa(linie-1,coloana+1,culoare[jucator]);
+                sens[bestcaine]='s';
+                caine[bestcaine][0]=linie-1; caine[bestcaine][1]=coloana+1;
+            }
+        }
+        else
+        {
+            liniemax=0;mutat=1;
+            for(int i=1;i<=4;i++)
+            {
+                if(caine[i][0]>liniemax && caine[i][0]>1)
+                {
+                    liniemax=caine[i][0];
+                    mutat=i;
+                }
+            }
+            coloana=caine[mutat][1];
+            linie=caine[mutat][0];
+
+            if(sens[mutat]=='s')
+            {
+                TablaDeJoc[linie-1][coloana-1]=jucator;
+                deseneazaPiesa(linie,coloana,FUNDAL);
+                deseneazaPiesa(linie-1,coloana-1,culoare[jucator]);
+                sens[mutat]='d';
+                caine[mutat][0]=linie-1; caine[mutat][1]=coloana-1;
+            }
+            else if(sens[mutat]=='d')
+            {
+                TablaDeJoc[linie-1][coloana+1]=jucator;
+                deseneazaPiesa(linie,coloana,FUNDAL);
+                deseneazaPiesa(linie-1,coloana+1,culoare[jucator]);
+                sens[mutat]='s';
+                caine[mutat][0]=linie-1; caine[mutat][1]=coloana+1;
+            }
+        }
+    }
+    else if (jucator == 2)
+    {
+    }
+}
+
+void mutarePvC(int jucator){
+    do
+    {
+
+        if(jucator==1)
+        {
+            mutarePC(1);
+            mutarePiesa(2);
+        }
+        else if(jucator==2)
+        {
+            mutarePiesa(1);
+            mutarePC(2);
+        }
+    }
+    while (1);
+}
 
 void PvP_window()
 {
     tabla();
-    mutare();
+    mutarePvP();
 
 }
 
 void PvC_window()
 {
     tabla();
-    mutare();
+    mutarePvC(1);
 }
 
 bool vulpeincoltita(int linia2, int coloana2)

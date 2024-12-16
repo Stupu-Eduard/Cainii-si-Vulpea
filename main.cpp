@@ -216,9 +216,11 @@ int castigat(int jucator)
         settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
         outtextxy(1000,400,"CAINII AU CASTIGAT!");
     }
+
     delay(300);
-    closegraph();
     Meniu();
+    closegraph();
+    //Meniu();
 }
 
 void desen()
@@ -441,8 +443,42 @@ void PvP_window()
 
 void PvC_window()
 {
-    tabla();
-    mutarePvC(1);
+    setcolor(YELLOW);
+    settextstyle(SIMPLEX_FONT,HORIZ_DIR,6);
+    outtextxy(80,60,"Alege ce vrei sa fii:");
+
+    int xb=200;
+    int ybc=200;
+    int ybv=500;
+    int latbut=300;
+    int inaltbut=200;
+
+    setcolor(WHITE);
+    drawButton(xb,ybc,latbut,inaltbut,"CAINI",10,5);
+    drawButton(xb,ybv,latbut,inaltbut,"VULPE",12,5);
+
+    while (1)
+    {
+        int x=mousex();
+        int y=mousey();
+        if (ismouseclick(WM_LBUTTONDOWN))
+            {
+                clearmouseclick(WM_LBUTTONDOWN);
+
+                if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
+                {
+                    tabla();
+                    mutarePvC(2);
+                }
+                if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
+                {
+                    tabla();
+                    mutarePvC(1);
+                }
+
+            }
+    }
+
 }
 
 bool vulpeincoltita(int linia2, int coloana2)

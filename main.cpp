@@ -8,7 +8,7 @@
 using namespace std;
 
 #define MAX 20
-#define FUNDAL CYAN
+#define FUNDAL GREEN
 
 int stanga,sus,width,height,latura, numar, ok=1;
 int vulpei=1,vulpej=5;
@@ -36,6 +36,7 @@ void PvP_window();
 void PvC_window();
 void bordare();
 bool vulpeincoltita(int linia2, int coloana2);
+void roundedRectangle(int left, int top, int right, int bottom);
 
 int main()
 {
@@ -62,6 +63,25 @@ void drawButton(int x, int y, int latime, int inalt, const char* text, int culoa
     texty=y+(inalt-inalt_text)/2;
     outtextxy(textx, texty, const_cast<char*>(text));
 }
+
+/*void roundedRectangle(int left, int top, int right, int bottom)
+{
+    int radius = 30;
+    setcolor(WHITE);
+
+    line(left + radius, top, right - radius, top);
+    line(left + radius, bottom, right - radius, bottom);
+
+    line(left, top + radius, left, bottom - radius);
+    line(right, top + radius, right, bottom - radius);
+
+    arc(left + radius, top + radius, 90, 180, radius);
+    arc(right - radius, top + radius, 0, 90, radius);
+
+    arc(left + radius, bottom - radius, 180, 270, radius);
+    arc(right - radius, bottom - radius, 270, 360, radius);
+
+} */
 
 
 void Meniu()
@@ -130,11 +150,15 @@ void deseneazaPiesa(int linia, int coloana, int culoare)
     y2=y1+latura;
     xmijloc=(x1+x2)/2;
     ymijloc=(y1+y2)/2;
-    bar(xmijloc-20,ymijloc-20,xmijloc+20,ymijloc+20);
+    bar(xmijloc-23,ymijloc-23,xmijloc+23,ymijloc+23);
     // afisez cerc rosu aprins
-    setcolor(culoare);
-    setfillstyle(SOLID_FILL,culoare);
-    fillellipse(xmijloc,ymijloc,18,18);
+    //setcolor(culoare);
+    //setfillstyle(SOLID_FILL,culoare);
+    //fillellipse(xmijloc,ymijloc,18,18);
+    if(culoare==12)
+        readimagefile("dogg_2.jpg",x1+5,y1+5,x1+45,y1+45);
+     if(culoare==14)
+        readimagefile("foxx_2.jpg",x1+5,y1+5,x1+45,y1+45);
 }
 
 void mutarePiesa(int jucator)
@@ -208,11 +232,13 @@ int castigat(int jucator)
                 TablaDeJoc[i][j]=0;
     if(jucator==2)
     {
+        setcolor(YELLOW);
         settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
         outtextxy(1000,400,"VULPEA A CASTIGAT!");
     }
     else if(jucator==1)
     {
+        setcolor(YELLOW);
         settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
         outtextxy(1000,400,"CAINII AU CASTIGAT!");
     }
@@ -234,7 +260,7 @@ void desen()
     stanga=(getmaxx()-height)/2;
     setbkcolor(FUNDAL);
     clearviewport();
-    setcolor(BLUE);
+    setcolor(YELLOW);
     for (i=1; i<=numar; i++)
         for (j=1; j<=numar; j++)
             rectangle(stanga+latura*(i-1),sus+latura*(j-1),stanga+latura*i,sus+latura*j);

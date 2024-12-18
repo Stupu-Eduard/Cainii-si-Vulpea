@@ -8,9 +8,9 @@
 using namespace std;
 
 #define MAX 20
-#define FUNDAL CYAN
+#define FUNDAL GREEN
 
-int stanga,sus,width,height,latura, numar, ok=1;
+int stanga,sus,width,height,latura, numar, ok=1, castig;
 int vulpei=1,vulpej=5;
 int bestcoloana=2,bestcaine=4,caine[5][2],ordine=1;
 char sens[5]={'s','s','s','s','s'}; //s sau d (stanga sau dreapta) pt caine
@@ -36,6 +36,7 @@ void PvP_window();
 void PvC_window();
 void bordare();
 bool vulpeincoltita(int linia2, int coloana2);
+void roundedRectangle(int x, int y, int latime, int inaltime, int raza, int culcontur, int culumplere);
 
 int main()
 {
@@ -50,9 +51,12 @@ void drawButton(int x, int y, int latime, int inalt, const char* text, int culoa
 {
     int lat_text,inalt_text,textx,texty;
 
-    setfillstyle(SOLID_FILL,culoare);
-    rectangle(x, y, x+latime, y+inalt);
-    floodfill(x+1, y+1, WHITE);
+    //setfillstyle(SOLID_FILL,culoare);
+    //setcolor(BLACK);
+    roundedRectangle(x, y, latime, inalt, 20, BLACK, culoare);
+    //floodfill(x+1, y+1, BLACK);
+    setbkcolor(BLACK);
+    setcolor(WHITE);
     settextstyle(SIMPLEX_FONT, HORIZ_DIR, dimtext);
 
     lat_text=textwidth(const_cast<char*>(text));
@@ -63,12 +67,38 @@ void drawButton(int x, int y, int latime, int inalt, const char* text, int culoa
     outtextxy(textx, texty, const_cast<char*>(text));
 }
 
+void roundedRectangle(int x, int y, int latime, int inaltime, int raza, int culcontur, int culumplere)
+{
+    setcolor(culcontur);
+    setfillstyle(SOLID_FILL, culumplere);
+
+    // Deseneaza colturile rotunjite
+    fillellipse(x+raza, y+raza, raza, raza);
+    fillellipse(x+latime-raza, y+raza, raza, raza);
+    fillellipse(x+raza, y+inaltime-raza, raza, raza);
+    fillellipse(x+latime-raza, y+inaltime-raza, raza, raza);
+
+    // Deseneaza dreptunghiurile centrale (fara colturi)
+    bar(x+raza, y, x+latime-raza, y+inaltime);
+    bar(x, y+raza, x+latime, y+inaltime-raza);
+
+    // Deseneaza conturul dreptunghiului
+    arc(x+raza, y+raza, 90, 180, raza);
+    arc(x+latime-raza, y+raza, 0, 90, raza);
+    arc(x+raza, y+inaltime-raza, 180, 270, raza);
+    arc(x+latime-raza, y+inaltime-raza, 270, 360, raza);
+    line(x+raza, y, x+latime-raza, y);
+    line(x+raza, y+inaltime, x+latime-raza, y+inaltime);
+    line(x, y+raza, x, y+inaltime-raza);
+    line(x+latime, y+raza, x+latime, y+inaltime-raza);
+}
+
 
 void Meniu()
 {
     int xbs,ybp,ybc,latbut,inaltbut,ybe;
 
-    int screenx=850;
+    /*int screenx=850;
     int screeny=850;
 
     initwindow(screenx,screeny);
@@ -78,7 +108,45 @@ void Meniu()
     inaltbut=100;
     ybp=screeny/5;
     ybc=screeny/4+inaltbut;
-    ybe=screeny/4+3*inaltbut-inaltbut/2;
+    ybe=screeny/4+3*inaltbut-inaltbut/2; */
+
+    int screenx=GetSystemMetrics(SM_CXSCREEN);
+    int screeny=GetSystemMetrics(SM_CYSCREEN);
+
+    initwindow(screenx,screeny);
+    setbkcolor(WHITE);
+    cleardevice();
+
+    if(castig==0)
+    {
+        setcolor(RED);
+        settextstyle(SIMPLEX_FONT,HORIZ_DIR,6);
+        outtextxy(400,60,"CAINII SI VULPEA");
+    }
+
+    if(castig==1)
+    {
+        setcolor(GREEN);
+        settextstyle(SIMPLEX_FONT,HORIZ_DIR,6);
+        outtextxy(400,60,"CAINII AU CASTIGAT!");
+    }
+
+    if(castig==2)
+    {
+        setcolor(GREEN);
+        settextstyle(SIMPLEX_FONT,HORIZ_DIR,6);
+        outtextxy(400,60,"VULPEA A CASTIGAT!");
+    }
+
+    xbs=screenx/3+25;
+    latbut=400;
+    inaltbut=150;
+    ybp=screeny/4-inaltbut/2+25;
+    ybc=screeny/2-inaltbut/2+25;
+    ybe=3*screeny/4-inaltbut/2+25;
+
+    readimagefile("Fox_1.jpg",0,screeny-500,360,screeny-140);
+    readimagefile("Dog_1.jpg",screenx-405,screeny-440,screenx,screeny-160);
 
     drawButton(xbs, ybp, latbut, inaltbut, "PvP", 9, 4);
     drawButton(xbs, ybc, latbut, inaltbut, "PvC", 5, 4);
@@ -130,11 +198,15 @@ void deseneazaPiesa(int linia, int coloana, int culoare)
     y2=y1+latura;
     xmijloc=(x1+x2)/2;
     ymijloc=(y1+y2)/2;
-    bar(xmijloc-20,ymijloc-20,xmijloc+20,ymijloc+20);
+    bar(xmijloc-23,ymijloc-23,xmijloc+23,ymijloc+23);
     // afisez cerc rosu aprins
-    setcolor(culoare);
-    setfillstyle(SOLID_FILL,culoare);
-    fillellipse(xmijloc,ymijloc,18,18);
+    //setcolor(culoare);
+    //setfillstyle(SOLID_FILL,culoare);
+    //fillellipse(xmijloc,ymijloc,18,18);
+    if(culoare==12)
+        readimagefile("dogg_2.jpg",x1+5,y1+5,x1+45,y1+45);
+     if(culoare==14)
+        readimagefile("foxx_2.jpg",x1+5,y1+5,x1+45,y1+45);
 }
 
 void mutarePiesa(int jucator)
@@ -181,6 +253,24 @@ void mutarePiesa(int jucator)
     }
     while (!click);
 
+        if(jucator==2){
+            setfillstyle(SOLID_FILL,FUNDAL);
+            bar(300,60,900,100);
+            setcolor(YELLOW);
+            settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
+            outtextxy(300,60,"ESTE RANDUL CAINELUI:");
+            vulpei=linia2;
+            vulpej=coloana2;
+        }
+
+        if(jucator==1)
+        {
+            setfillstyle(SOLID_FILL,FUNDAL);
+            bar(300,60,1100,100);
+            setcolor(YELLOW);
+            settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
+            outtextxy(300,60,"ESTE RANDUL VULPII:");
+        }
 
 
         TablaDeJoc[linia1][coloana1]=0;
@@ -188,10 +278,11 @@ void mutarePiesa(int jucator)
         deseneazaPiesa(linia1,coloana1,FUNDAL);
         deseneazaPiesa(linia2,coloana2,culoare[jucator]);
 
-        if(jucator==2){
+        /*if(jucator==2){
             vulpei=linia2;
             vulpej=coloana2;
-        }
+        } */
+
         if (jucator == 1 && vulpeincoltita(vulpei, vulpej)) {
             castigat(1); // Dogs win
         }
@@ -208,17 +299,25 @@ int castigat(int jucator)
                 TablaDeJoc[i][j]=0;
     if(jucator==2)
     {
-        settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        outtextxy(1000,400,"VULPEA A CASTIGAT!");
+        castig=2;
+        Meniu();
+        //setcolor(YELLOW);
+        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
+        //outtextxy(300,60,"VULPEA A CASTIGAT!");
+
     }
     else if(jucator==1)
     {
-        settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        outtextxy(1000,400,"CAINII AU CASTIGAT!");
+        castig=1;
+        Meniu();
+        //setcolor(YELLOW);
+        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
+        //outtextxy(300,60,"CAINII AU CASTIGAT!");
     }
-    delay(300);
+
+    //delay(300);
+    //Meniu();
     closegraph();
-    Meniu();
 }
 
 void desen()
@@ -232,7 +331,7 @@ void desen()
     stanga=(getmaxx()-height)/2;
     setbkcolor(FUNDAL);
     clearviewport();
-    setcolor(BLUE);
+    setcolor(YELLOW);
     for (i=1; i<=numar; i++)
         for (j=1; j<=numar; j++)
             rectangle(stanga+latura*(i-1),sus+latura*(j-1),stanga+latura*i,sus+latura*j);
@@ -240,10 +339,6 @@ void desen()
 
 void tabla()
 {
-    initPC=true;
-    for(int i=1;i<=4;i++)
-        sens[i]='s';
-
     for(int i=0;i<=9;i++)
     {
             TablaDeJoc[0][i]=-1;
@@ -256,6 +351,10 @@ void tabla()
     initwindow(screenx,screeny,"Cainii si vulpea");
     desen();
     bordare();
+
+    setcolor(YELLOW);
+    settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
+    outtextxy(300,60,"ESTE RANDUL CAINELUI:");
 
     gata=false;
     for (int i=1; i<=numar; i++)
@@ -273,7 +372,13 @@ void mutarePvP()
 {
     do
     {
+        //setcolor(YELLOW);
+        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
+        //outtextxy(300,60,"ESTE RANDUL CAINELUI:");
         mutarePiesa(1);
+        //setcolor(YELLOW);
+        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
+        //outtextxy(300,60,"ESTE RANDUL VULPEI:");
         mutarePiesa(2);
     }
     while (1);
@@ -292,10 +397,10 @@ void mutarePC(int jucator)
     bool moveValid = false;
 
 
-
+    // Logic for the AI controlling the dogs
     if (jucator == 1) // Player = Dogs
     {
-
+        // Initialization step - Place the dogs at their starting positions
         if (initPC)
         {
             int col = 2; // Starting column for the first dog
@@ -308,15 +413,17 @@ void mutarePC(int jucator)
             initPC = false; // Mark initialization complete
         }
 
+        // **Strategy Start**: Attempt to block the fox
         if (strategyStart())
         {
-            bestcoloana = vulpej;
+            bestcoloana = vulpej; // Target the fox's current column
 
             for (int i = 1; i <= 4; i++)
             {
-
+                // Look for the dog closest to the fox
                 if (abs(vulpej - bestcoloana) <= abs(vulpej - caine[i][1]) && caine[i][0] > 1)
                 {
+                    // If the dog can move in the correct direction (left or right diagonal)
                     if ((sens[i] == 's' && TablaDeJoc[caine[i][0] - 1][caine[i][1] - 1] == 0) ||
                         (sens[i] == 'd' && TablaDeJoc[caine[i][0] - 1][caine[i][1] + 1] == 0))
                     {
@@ -330,32 +437,34 @@ void mutarePC(int jucator)
             currentColumn = caine[bestcaine][1];
             currentLine = caine[bestcaine][0];
 
-            if (sens[bestcaine] == 's')
+            if (sens[bestcaine] == 's') // Move diagonally left
             {
-                TablaDeJoc[currentLine][currentColumn] = 0;
-                TablaDeJoc[currentLine - 1][currentColumn - 1] = jucator;
-                deseneazaPiesa(currentLine, currentColumn, FUNDAL);
-                deseneazaPiesa(currentLine - 1, currentColumn - 1, culoare[jucator]);
-                sens[bestcaine] = 'd';
+                TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
+                TablaDeJoc[currentLine - 1][currentColumn - 1] = jucator; // Update board
+                deseneazaPiesa(currentLine, currentColumn, FUNDAL); // Clear old position
+                deseneazaPiesa(currentLine - 1, currentColumn - 1, culoare[jucator]); // Draw new position
+                sens[bestcaine] = 'd'; // Switch direction
                 caine[bestcaine][0] = currentLine - 1;
                 caine[bestcaine][1] = currentColumn - 1;
             }
-            else if (sens[bestcaine] == 'd')
+            else if (sens[bestcaine] == 'd') // Move diagonally right
             {
-                TablaDeJoc[currentLine][currentColumn] = 0;
-                TablaDeJoc[currentLine - 1][currentColumn + 1] = jucator;
-                deseneazaPiesa(currentLine, currentColumn, FUNDAL);
-                deseneazaPiesa(currentLine - 1, currentColumn + 1, culoare[jucator]);
+                TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
+                TablaDeJoc[currentLine - 1][currentColumn + 1] = jucator; // Update board
+                deseneazaPiesa(currentLine, currentColumn, FUNDAL); // Clear old position
+                deseneazaPiesa(currentLine - 1, currentColumn + 1, culoare[jucator]); // Draw new position
                 sens[bestcaine] = 's'; // Switch direction
                 caine[bestcaine][0] = currentLine - 1;
                 caine[bestcaine][1] = currentColumn + 1;
             }
         }
+        // **Fallback Strategy**: Find the highest dog and advance it forward
         else
         {
             maxLine = 0;
             selectedDog = 1;
 
+            // Iterate over all dogs to find the one in the furthest row that can move
             for (int i = 1; i <= 4; i++)
             {
                 currentColumn = caine[i][1];
@@ -366,7 +475,7 @@ void mutarePC(int jucator)
                     selectedDog = i;
                 }
             }
-            if(caine[1][0]<vulpei && caine[2][0]<vulpei && caine[3][0]<vulpei && caine[4][0]<vulpei)
+            if(caine[1][0]==1 && caine[2][0]==1 && caine[3][0]==1 && caine[4][0]==1)
                 castigat(2);
             // Move the selected dog
             currentColumn = caine[selectedDog][1];
@@ -412,6 +521,9 @@ void mutarePC(int jucator)
 
 void mutarePvC(int jucator)
 {
+    initPC=true;
+    for(int i=1;i<=4;i++)
+        sens[i]='s';
     do
     {
 
@@ -433,14 +545,56 @@ void PvP_window()
 {
     tabla();
     mutarePvP();
-    cout<<1;
 
 }
 
 void PvC_window()
 {
-    tabla();
-    mutarePvC(1);
+    int screenx=GetSystemMetrics(SM_CXSCREEN);
+    int screeny=GetSystemMetrics(SM_CYSCREEN);
+
+    setbkcolor(WHITE);
+    cleardevice();
+
+    setcolor(BLUE);
+    settextstyle(SIMPLEX_FONT,HORIZ_DIR,7);
+    outtextxy(400,60,"Alege ce vrei sa fii:");
+
+    int xb=570;
+    int ybc=200;
+    int ybv=500;
+    int latbut=350;
+    int inaltbut=200;
+
+    //setcolor(WHITE);
+    readimagefile("Fox_1.jpg",0,screeny-500,360,screeny-140);
+    readimagefile("Dog_1.jpg",screenx-405,screeny-440,screenx,screeny-160);
+
+    drawButton(xb,ybc,latbut,inaltbut,"CAINI",10,5);
+    drawButton(xb,ybv,latbut,inaltbut,"VULPE",12,5);
+
+    while (1)
+    {
+        int x=mousex();
+        int y=mousey();
+        if (ismouseclick(WM_LBUTTONDOWN))
+            {
+                clearmouseclick(WM_LBUTTONDOWN);
+
+                if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
+                {
+                    tabla();
+                    mutarePvC(2);
+                }
+                if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
+                {
+                    tabla();
+                    mutarePvC(1);
+                }
+
+            }
+    }
+
 }
 
 bool vulpeincoltita(int linia2, int coloana2)

@@ -13,6 +13,7 @@ using namespace std;
 int stanga,sus,width,height,latura, numar, ok=1, castig;
 int vulpei=1,vulpej=5;
 int bestcoloana=2,bestcaine=4,caine[5][2],ordine=1;
+
 char sens[5]={'s','s','s','s','s'}; //s sau d (stanga sau dreapta) pt caine
 
 bool gata;
@@ -154,6 +155,13 @@ void Meniu()
 
     while (1)
     {
+        int col=2;
+        for(int i=1;i<=4;i++)
+        {
+            caine[i][0]=8;
+            caine[i][1]=col;
+            col+=2;
+        }
         int x=mousex();
         int y=mousey();
         if (ismouseclick(WM_LBUTTONDOWN))
@@ -211,9 +219,8 @@ void deseneazaPiesa(int linia, int coloana, int culoare)
 
 void mutarePiesa(int jucator)
 {
-    int linia1,coloana1,linia2,coloana2,x,y;
+    int linia1,coloana1,linia2,coloana2,x,y,dogNumber=0;
     int click=false;
-
     do
     {
         if(ismouseclick(WM_LBUTTONDOWN) && !click)
@@ -224,13 +231,20 @@ void mutarePiesa(int jucator)
             y=mousey();
             linia1=(y-sus)/latura+1;
             coloana1=(x-stanga)/latura+1;
-        }
 
-        if(TablaDeJoc[linia1][coloana1]!=jucator)
-            click=false;
+            if(TablaDeJoc[linia1][coloana1]!=jucator)
+                click=false;
+        }
     }
     while (!click);
-
+    for(int i=1;i<=4;i++)
+    {
+        if(caine[i][0]==linia1 && caine[i][1]==coloana1)
+        {
+            dogNumber=i;
+            i=5;
+        }
+    }
     click=false;
 
     do
@@ -253,7 +267,8 @@ void mutarePiesa(int jucator)
     }
     while (!click);
 
-        if(jucator==2){
+        if(jucator==2)
+        {
             setfillstyle(SOLID_FILL,FUNDAL);
             bar(300,60,900,100);
             setcolor(YELLOW);
@@ -265,6 +280,9 @@ void mutarePiesa(int jucator)
 
         if(jucator==1)
         {
+            caine[dogNumber][0]=linia2;
+            caine[dogNumber][1]=coloana2;
+
             setfillstyle(SOLID_FILL,FUNDAL);
             bar(300,60,1100,100);
             setcolor(YELLOW);
@@ -278,15 +296,16 @@ void mutarePiesa(int jucator)
         deseneazaPiesa(linia1,coloana1,FUNDAL);
         deseneazaPiesa(linia2,coloana2,culoare[jucator]);
 
-        /*if(jucator==2){
+        if(jucator==2)
+        {
             vulpei=linia2;
             vulpej=coloana2;
-        } */
+        }
 
         if (jucator == 1 && vulpeincoltita(vulpei, vulpej)) {
             castigat(1); // Dogs win
         }
-        if (jucator == 2 && linia2 == 8)
+        if( (jucator == 2 && linia2 == 8) || (caine[1][0]<vulpei && caine[2][0]<vulpei && caine[3][0]<vulpei && caine[4][0]<vulpei) )
             castigat(2);// Fox wins by reaching row 8
 }
 
@@ -339,6 +358,10 @@ void desen()
 
 void tabla()
 {
+    initPC=true;
+    for(int i=1;i<=4;i++)
+        sens[i]='s';
+
     for(int i=0;i<=9;i++)
     {
             TablaDeJoc[0][i]=-1;
@@ -475,7 +498,7 @@ void mutarePC(int jucator)
                     selectedDog = i;
                 }
             }
-            if(caine[1][0]==1 && caine[2][0]==1 && caine[3][0]==1 && caine[4][0]==1)
+            if(caine[1][0]<vulpei && caine[2][0]<vulpei && caine[3][0]<vulpei && caine[4][0]<vulpei)
                 castigat(2);
             // Move the selected dog
             currentColumn = caine[selectedDog][1];

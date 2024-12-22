@@ -201,7 +201,7 @@ void Meniu()
               {
                   if (!isPlaying)
                     {
-                       PlaySound("music.wav", NULL, SND_ASYNC | SND_LOOP);
+                       PlaySound("music_2.wav", NULL, SND_ASYNC | SND_LOOP);
                        isPlaying = true;
                     }
                   else

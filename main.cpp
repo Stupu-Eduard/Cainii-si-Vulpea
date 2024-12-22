@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include<graphics.h>
 #include<conio.h>
+#include<windows.h>
+#include<mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 #include<math.h>
 
 using namespace std;
@@ -10,7 +13,8 @@ using namespace std;
 #define MAX 20
 #define FUNDAL GREEN
 
-int stanga,sus,width,height,latura, numar, ok=1, castig;
+int stanga,sus,width,height,latura, numar, ok=1, castig, mode;
+int foxX=1,foxY=5;
 int vulpei=1,vulpej=5;
 int bestcoloana=2,bestcaine=4,caine[5][2],ordine=1;
 
@@ -18,6 +22,7 @@ char sens[5]={'s','s','s','s','s'}; //s sau d (stanga sau dreapta) pt caine
 
 bool gata;
 bool initPC=true;
+bool isPlaying=false;
 
 int culoare[3]= {FUNDAL,LIGHTRED,YELLOW};
 
@@ -27,10 +32,10 @@ int TablaDeJoc[MAX][MAX];
 void mutarePiesa(int jucator, int& mutarea);
 void drawButton(int x, int y, int latime, int inalt, const char* text, int culoare, int dimtext);
 void deseneazaPiesa(int linia, int coloana, int culoare);
-void mutarePiesa(int jucator);
+void mutarePiesa(int jucator, int mode);
 int castigat(int jucator); //, int mutarea);
 void Meniu();
-void tabla();
+void tabla(int mode);
 void mutare();
 void desen();
 void PvP_window();
@@ -38,6 +43,8 @@ void PvC_window();
 void bordare();
 bool vulpeincoltita(int linia2, int coloana2);
 void roundedRectangle(int x, int y, int latime, int inaltime, int raza, int culcontur, int culumplere);
+bool miscarevalida(int x, int y);
+void moveFox(int& foxX, int& foxY);
 
 int main()
 {
@@ -152,6 +159,7 @@ void Meniu()
     drawButton(xbs, ybp, latbut, inaltbut, "PvP", 9, 4);
     drawButton(xbs, ybc, latbut, inaltbut, "PvC", 5, 4);
     drawButton(xbs, ybe, latbut, inaltbut, "Exit", 12, 4);
+    drawButton(20,20,200,100,"Music",13,2);
 
     while (1)
     {
@@ -188,9 +196,24 @@ void Meniu()
                   closegraph();
                   exit(0);
                 }
+
+              if(x>=20 && x<=220 && y>=20 && y<=120)
+              {
+                  if (!isPlaying)
+                    {
+                       PlaySound("music.wav", NULL, SND_ASYNC | SND_LOOP);
+                       isPlaying = true;
+                    }
+                  else
+                    {
+                       PlaySound(NULL, 0, 0); // Oprește melodia
+                       isPlaying = false;
+                    }
+              }
             }
     }
 }
+
 
 
 void deseneazaPiesa(int linia, int coloana, int culoare)
@@ -217,7 +240,7 @@ void deseneazaPiesa(int linia, int coloana, int culoare)
         readimagefile("foxx_2.jpg",x1+5,y1+5,x1+45,y1+45);
 }
 
-void mutarePiesa(int jucator)
+void mutarePiesa(int jucator, int mode)
 {
     int linia1,coloana1,linia2,coloana2,x,y,dogNumber=0;
     int click=false;
@@ -271,9 +294,12 @@ void mutarePiesa(int jucator)
         {
             setfillstyle(SOLID_FILL,FUNDAL);
             bar(300,60,900,100);
-            setcolor(YELLOW);
-            settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
-            outtextxy(300,60,"ESTE RANDUL CAINELUI:");
+            if(mode==1)
+            {
+              setcolor(YELLOW);
+              settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
+              outtextxy(300,60,"ESTE RANDUL CAINELUI:");
+            }
             vulpei=linia2;
             vulpej=coloana2;
         }
@@ -285,9 +311,12 @@ void mutarePiesa(int jucator)
 
             setfillstyle(SOLID_FILL,FUNDAL);
             bar(300,60,1100,100);
-            setcolor(YELLOW);
-            settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
-            outtextxy(300,60,"ESTE RANDUL VULPII:");
+            if(mode==1)
+            {
+              setcolor(YELLOW);
+              settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
+              outtextxy(300,60,"ESTE RANDUL VULPII:");
+            }
         }
 
 
@@ -316,6 +345,8 @@ int castigat(int jucator)
     for(int i=1;i<=8;i++)
             for(int j=1;j<=8;j++)
                 TablaDeJoc[i][j]=0;
+    foxX=1;
+    foxY=5;
     if(jucator==2)
     {
         castig=2;
@@ -356,7 +387,7 @@ void desen()
             rectangle(stanga+latura*(i-1),sus+latura*(j-1),stanga+latura*i,sus+latura*j);
 }
 
-void tabla()
+void tabla(int mode)
 {
     initPC=true;
     for(int i=1;i<=4;i++)
@@ -375,9 +406,12 @@ void tabla()
     desen();
     bordare();
 
-    setcolor(YELLOW);
-    settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
-    outtextxy(300,60,"ESTE RANDUL CAINELUI:");
+    if(mode==1)
+    {
+      setcolor(YELLOW);
+      settextstyle(SIMPLEX_FONT,HORIZ_DIR,5);
+      outtextxy(300,60,"ESTE RANDUL CAINELUI:");
+    }
 
     gata=false;
     for (int i=1; i<=numar; i++)
@@ -395,14 +429,8 @@ void mutarePvP()
 {
     do
     {
-        //setcolor(YELLOW);
-        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        //outtextxy(300,60,"ESTE RANDUL CAINELUI:");
-        mutarePiesa(1);
-        //setcolor(YELLOW);
-        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        //outtextxy(300,60,"ESTE RANDUL VULPEI:");
-        mutarePiesa(2);
+        mutarePiesa(1,1);
+        mutarePiesa(2,1);
     }
     while (1);
 }
@@ -539,6 +567,15 @@ void mutarePC(int jucator)
     else if (jucator == 2)
     {
         // Logic for controlling the fox (to be implemented)
+        moveFox(foxX,foxY);
+
+        for(int p=1;p<=8;p++)
+        {
+            for(int q=1;q<=8;q++)
+                cout<<TablaDeJoc[p][q]<<" ";
+            cout<<endl;
+        }
+        cout<<endl<<endl;
     }
 }
 
@@ -553,11 +590,11 @@ void mutarePvC(int jucator)
         if(jucator==1)
         {
             mutarePC(1);
-            mutarePiesa(2);
+            mutarePiesa(2,2);
         }
         else if(jucator==2)
         {
-            mutarePiesa(1);
+            mutarePiesa(1,2);
             mutarePC(2);
         }
     }
@@ -566,7 +603,7 @@ void mutarePvC(int jucator)
 
 void PvP_window()
 {
-    tabla();
+    tabla(1);
     mutarePvP();
 
 }
@@ -606,12 +643,12 @@ void PvC_window()
 
                 if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
                 {
-                    tabla();
+                    tabla(2);
                     mutarePvC(2);
                 }
                 if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
                 {
-                    tabla();
+                    tabla(2);
                     mutarePvC(1);
                 }
 
@@ -634,5 +671,69 @@ void bordare()
         TablaDeJoc[i][0]=TablaDeJoc[i][numar+1]=-1;
     for(int i=0; i<=numar+1; i++)
         TablaDeJoc[0][i]=TablaDeJoc[numar+1][i]=-1;
+
+}
+
+bool miscarevalida(int x, int y)
+{
+    return x>=1 && x<=8 && y>=1 && y<=8 && TablaDeJoc[x][y]==0;
+}
+
+void moveFox(int& foxX, int& foxY)
+{
+    int bestMoveX=foxX;
+    int bestMoveY=foxY;
+    bool foundMove=false;
+
+    int Directieinainte[2][2] = {{1, -1}, {1, 1}};
+    int Directieinapoi[2][2] = {{-1, -1}, {-1, 1}};
+
+
+    for (int i=0; i<2; i++)
+    {
+        int newX = foxX + Directieinainte[i][0];
+        int newY = foxY + Directieinainte[i][1];
+        if (miscarevalida(newX, newY))
+        {
+            bestMoveX=newX;
+            bestMoveY=newY;
+            foundMove=true;
+            break;
+        }
+    }
+
+
+    if (!foundMove)
+    {
+        for (int i=0; i<2; i++)
+        {
+            int newX = foxX + Directieinapoi[i][0];
+            int newY = foxY + Directieinapoi[i][1];
+            if (miscarevalida(newX, newY))
+            {
+                bestMoveX=newX;
+                bestMoveY=newY;
+                foundMove=true;
+                break;
+            }
+        }
+    }
+
+    // Daca nu exista mutari valide
+    if (!foundMove)
+         castigat(1);
+
+
+    TablaDeJoc[foxX][foxY]=0;
+    deseneazaPiesa(foxX, foxY, FUNDAL);
+
+    foxX=bestMoveX;
+    foxY=bestMoveY;
+
+    TablaDeJoc[foxX][foxY]=2;
+    deseneazaPiesa(foxX, foxY, culoare[2]);
+
+    if(foxX==8)
+        castigat(2);
 
 }

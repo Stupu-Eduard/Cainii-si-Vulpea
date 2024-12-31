@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <winbgim.h>
 #include <stdlib.h>
 #include<graphics.h>
@@ -7,13 +8,16 @@
 #include<mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 #include<math.h>
+#include<cstdlib>
 
 using namespace std;
 
 #define MAX 20
 #define FUNDAL GREEN
 
-int stanga,sus,width,height,latura, numar, ok=1, castig, mode;
+ofstream fout("output.out");
+
+int stanga,sus,width,height,latura, numar, ok=1, castig, mode, cnt;
 int foxX=1,foxY=5;
 int vulpei=1,vulpej=5;
 int bestcoloana=2,bestcaine=4,caine[5][2],ordine=1;
@@ -29,7 +33,7 @@ int culoare[3]= {FUNDAL,LIGHTRED,YELLOW};
 int TablaDeJoc[MAX][MAX];
 
 
-void mutarePiesa(int jucator, int& mutarea);
+//void mutarePiesa(int jucator, int& mutarea);
 void drawButton(int x, int y, int latime, int inalt, const char* text, int culoare, int dimtext);
 void deseneazaPiesa(int linia, int coloana, int culoare);
 void mutarePiesa(int jucator, int mode);
@@ -45,6 +49,12 @@ bool vulpeincoltita(int linia2, int coloana2);
 void roundedRectangle(int x, int y, int latime, int inaltime, int raza, int culcontur, int culumplere);
 bool miscarevalida(int x, int y);
 void moveFox(int& foxX, int& foxY);
+void PvC_dificulty_window(int jucator);
+void mutarePvC(int jucator, int dificulty);
+void mutarePC(int jucator, int dificulty);
+void moveDog_rand();
+void moveFox_rand(int& foxX, int& foxY);
+int cainii_incoltesc(int x, int y);
 
 int main()
 {
@@ -106,17 +116,6 @@ void Meniu()
 {
     int xbs,ybp,ybc,latbut,inaltbut,ybe;
 
-    /*int screenx=850;
-    int screeny=850;
-
-    initwindow(screenx,screeny);
-
-    xbs=screenx/3;
-    latbut=200;
-    inaltbut=100;
-    ybp=screeny/5;
-    ybc=screeny/4+inaltbut;
-    ybe=screeny/4+3*inaltbut-inaltbut/2; */
 
     int screenx=GetSystemMetrics(SM_CXSCREEN);
     int screeny=GetSystemMetrics(SM_CYSCREEN);
@@ -325,6 +324,16 @@ void mutarePiesa(int jucator, int mode)
         deseneazaPiesa(linia1,coloana1,FUNDAL);
         deseneazaPiesa(linia2,coloana2,culoare[jucator]);
 
+        fout<<"Jocul "<<cnt<<":"<<endl;
+        for(int p=1;p<=8;p++)
+            {
+               for(int q=1;q<=8;q++)
+                   fout<<TablaDeJoc[p][q]<<" ";
+               fout<<endl;
+            }
+              fout<<endl<<endl;
+
+
         if(jucator==2)
         {
             vulpei=linia2;
@@ -351,22 +360,15 @@ int castigat(int jucator)
     {
         castig=2;
         Meniu();
-        //setcolor(YELLOW);
-        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        //outtextxy(300,60,"VULPEA A CASTIGAT!");
 
     }
     else if(jucator==1)
     {
         castig=1;
         Meniu();
-        //setcolor(YELLOW);
-        //settextstyle(SIMPLEX_FONT,HORIZ_DIR,4);
-        //outtextxy(300,60,"CAINII AU CASTIGAT!");
     }
 
-    //delay(300);
-    //Meniu();
+
     closegraph();
 }
 
@@ -427,6 +429,9 @@ void tabla(int mode)
 
 void mutarePvP()
 {
+    cnt++;
+    //fout<<"Jocul "<<cnt<<":"<<endl;
+
     do
     {
         mutarePiesa(1,1);
@@ -442,7 +447,7 @@ return ( (vulpei==(caine[1][0]-1) && (vulpej==(caine[1][1]+1) || vulpej==(caine[
 
 }
 
-void mutarePC(int jucator)
+void mutarePC(int jucator, int dificulty)
 {
     int currentColumn, currentLine, maxLine, selectedDog;
     bool moveValid = false;
@@ -451,9 +456,39 @@ void mutarePC(int jucator)
     // Logic for the AI controlling the dogs
     if (jucator == 1) // Player = Dogs
     {
-        // Initialization step - Place the dogs at their starting positions
-        if (initPC)
+        if(dificulty==1)
         {
+            if(initPC)
+            {
+
+              int col = 2;
+              for (int i=0; i<=3; i++)
+                {
+                    caine[i][0] = 8; // All dogs start in row 8
+                    caine[i][1] = col; // Assign column positions
+                    col += 2; // Move to the next column
+                }
+
+                initPC=false;
+            }
+
+            moveDog_rand();
+
+            fout<<"Jocul "<<cnt<<":"<<endl;
+            for(int p=1;p<=8;p++)
+            {
+               for(int q=1;q<=8;q++)
+                   fout<<TablaDeJoc[p][q]<<" ";
+               fout<<endl;
+            }
+              fout<<endl<<endl;
+
+        }
+        else
+        {
+        // Initialization step - Place the dogs at their starting positions
+           if (initPC)
+          {
             int col = 2; // Starting column for the first dog
             for (int i = 1; i <= 4; i++)
             {
@@ -462,7 +497,7 @@ void mutarePC(int jucator)
                 col += 2; // Move to the next column
             }
             initPC = false; // Mark initialization complete
-        }
+          }
 
         // **Strategy Start**: Attempt to block the fox
         if (strategyStart())
@@ -554,48 +589,68 @@ void mutarePC(int jucator)
             }
         }
 
-
-
+        fout<<"Jocul "<<cnt<<":"<<endl;
         for(int p=1;p<=8;p++)
         {
             for(int q=1;q<=8;q++)
-                cout<<TablaDeJoc[p][q]<<" ";
-            cout<<endl;
+                fout<<TablaDeJoc[p][q]<<" ";
+            fout<<endl;
         }
-        cout<<endl<<endl;
+        fout<<endl<<endl;
+     }
     }
     else if (jucator == 2)
     {
-        // Logic for controlling the fox (to be implemented)
-        moveFox(foxX,foxY);
-
-        for(int p=1;p<=8;p++)
+        if(dificulty==1)
         {
-            for(int q=1;q<=8;q++)
-                cout<<TablaDeJoc[p][q]<<" ";
-            cout<<endl;
+            moveFox_rand(foxX,foxY);
+
+            fout<<"Jocul "<<cnt<<":"<<endl;
+            for(int p=1;p<=8;p++)
+            {
+               for(int q=1;q<=8;q++)
+                   fout<<TablaDeJoc[p][q]<<" ";
+               fout<<endl;
+            }
+              fout<<endl<<endl;
         }
-        cout<<endl<<endl;
+        else
+        {
+            moveFox(foxX,foxY);
+
+            fout<<"Jocul "<<cnt<<":"<<endl;
+            for(int p=1;p<=8;p++)
+            {
+                for(int q=1;q<=8;q++)
+                    fout<<TablaDeJoc[p][q]<<" ";
+                fout<<endl;
+            }
+            fout<<endl<<endl;
+        }
     }
 }
 
-void mutarePvC(int jucator)
+void mutarePvC(int jucator, int dificulty)
 {
     initPC=true;
     for(int i=1;i<=4;i++)
         sens[i]='s';
+
+    cnt++;
+    //fout<<"Jocul "<<cnt<<endl;
+
     do
     {
 
         if(jucator==1)
         {
-            mutarePC(1);
+            mutarePC(1, dificulty);
             mutarePiesa(2,2);
         }
         else if(jucator==2)
         {
             mutarePiesa(1,2);
-            mutarePC(2);
+            mutarePC(2, dificulty);
         }
     }
     while (1);
@@ -643,13 +698,15 @@ void PvC_window()
 
                 if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
                 {
-                    tabla(2);
-                    mutarePvC(2);
+                    PvC_dificulty_window(1);
+                    //tabla(2);
+                    //mutarePvC(2);
                 }
                 if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
                 {
-                    tabla(2);
-                    mutarePvC(1);
+                    PvC_dificulty_window(2);
+                    //tabla(2);
+                    //mutarePvC(1);
                 }
 
             }
@@ -735,5 +792,205 @@ void moveFox(int& foxX, int& foxY)
 
     if(foxX==8)
         castigat(2);
+
+}
+
+void PvC_dificulty_window(int jucator)
+{
+    int screenx=GetSystemMetrics(SM_CXSCREEN);
+    int screeny=GetSystemMetrics(SM_CYSCREEN);
+
+    setbkcolor(WHITE);
+    cleardevice();
+
+    setcolor(BLUE);
+    settextstyle(SIMPLEX_FONT,HORIZ_DIR,7);
+    outtextxy(400,60,"Alege Dificultatea:");
+
+    int xb=570;
+    int ybc=200;
+    int ybv=500;
+    int latbut=350;
+    int inaltbut=200;
+
+    //setcolor(WHITE);
+    readimagefile("Fox_1.jpg",0,screeny-500,360,screeny-140);
+    readimagefile("Dog_1.jpg",screenx-405,screeny-440,screenx,screeny-160);
+
+    drawButton(xb,ybc,latbut,inaltbut,"EASY",10,5);
+    drawButton(xb,ybv,latbut,inaltbut,"MEDIUM",11,5);
+
+    if(jucator==1)
+    {
+
+       while (1)
+      {
+        int x=mousex();
+        int y=mousey();
+        if (ismouseclick(WM_LBUTTONDOWN))
+            {
+                clearmouseclick(WM_LBUTTONDOWN);
+
+                if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
+                {
+                    //PvC_dificulty_window(2);
+                    tabla(2);
+                    mutarePvC(2,1);
+                }
+                if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
+                {
+                    //PvC_dificulty_window(1);
+                    tabla(2);
+                    mutarePvC(2,2);
+                }
+
+            }
+      }
+
+    }
+    else
+    {
+        while (1)
+       {
+        int x=mousex();
+        int y=mousey();
+        if (ismouseclick(WM_LBUTTONDOWN))
+            {
+                clearmouseclick(WM_LBUTTONDOWN);
+
+                if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
+                {
+                    //PvC_dificulty_window(2);
+                    tabla(2);
+                    mutarePvC(1,1);
+                }
+                if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
+                {
+                    //PvC_dificulty_window(1);
+                    tabla(2);
+                    mutarePvC(1,2);
+                }
+
+            }
+       }
+
+    }
+
+}
+
+void moveDog_rand()
+{
+    int dx[]={-1,-1};
+    int dy[]={-1,1};
+
+    for(int i=0; i<10; i++)
+    {
+        int dog=rand()%4;
+        int dir=rand()%2; // Alege o direcție aleatorie noua
+        int newX = caine[dog][0]+dx[dir];
+        int newY = caine[dog][1]+dy[dir];
+
+        if (miscarevalida(newX, newY))
+       {
+            TablaDeJoc[caine[dog][0]][caine[dog][1]]=0;
+            deseneazaPiesa(caine[dog][0], caine[dog][1], FUNDAL);
+            caine[dog][0]=newX;
+            caine[dog][1]=newY;
+            TablaDeJoc[caine[dog][0]][caine[dog][1]]=1;
+            deseneazaPiesa(caine[dog][0], caine[dog][1], culoare[1]);
+
+            if(cainii_incoltesc(newX,newY))
+                castigat(1);
+
+            break;
+
+       }
+    }
+
+
+
+}
+
+void moveFox_rand(int& foxX, int& foxY)
+{
+    int dx[]={-1, 1, -1, 1};
+    int dy[]={-1, -1, 1, 1};
+
+    //if(vulpeincoltita(foxX,foxY))
+        //castigat(1);
+
+
+    for(int i=0; i<10; i++)
+    {
+        int dir=rand()%4; // Alege o direcție aleatorie noua
+        int newX = foxX+dx[dir];
+        int newY = foxY+dy[dir];
+
+        if (miscarevalida(newX, newY))
+       {
+            if(newX==8)
+             castigat(2);
+
+            TablaDeJoc[foxX][foxY]=0;
+            deseneazaPiesa(foxX, foxY, FUNDAL);
+            foxX=newX;
+            foxY=newY;
+            TablaDeJoc[foxX][foxY]=2;
+            deseneazaPiesa(foxX, foxY, culoare[2]);
+
+            if(vulpeincoltita(foxX,foxY))
+               castigat(1);
+
+             break;
+
+       }
+
+    }
+}
+
+int cainii_incoltesc(int x, int y)
+{
+    ///Cainii incoltesc vulpea la mijloc
+     if(TablaDeJoc[x][y]==1 && TablaDeJoc[x-2][y]==1 && TablaDeJoc[x-1][y-1]==2 && TablaDeJoc[x][y-2]==1 && TablaDeJoc[x-2][y-2]==1)
+        return 1;
+
+     if(TablaDeJoc[x][y]==1 && TablaDeJoc[x-2][y]==1 && TablaDeJoc[x-1][y+1]==2 && TablaDeJoc[x][y+2]==1 && TablaDeJoc[x-2][y+2]==1)
+        return 1;
+
+     if(TablaDeJoc[x][y]==1 && TablaDeJoc[x+2][y]==1 && TablaDeJoc[x+1][y-1]==2 && TablaDeJoc[x][y-2]==1 && TablaDeJoc[x+2][y-2]==1)
+        return 1;
+
+     if(TablaDeJoc[x][y]==1 && TablaDeJoc[x+2][y]==1 && TablaDeJoc[x+1][y+1]==2 && TablaDeJoc[x][y+2]==1 && TablaDeJoc[x+2][y+2]==1)
+        return 1;
+
+    ///Cainii incoltesc vulpea la margine
+
+    if(TablaDeJoc[x][y]==1 && TablaDeJoc[x-2][y]==1 && TablaDeJoc[x-1][y-1]==2 && y==2)
+         return 1;
+
+    if(TablaDeJoc[x][y]==1 && TablaDeJoc[x+2][y]==1 && TablaDeJoc[x+1][y-1]==2 && y==2)
+         return 1;
+
+    if(TablaDeJoc[x][y]==1 && TablaDeJoc[x-2][y]==1 && TablaDeJoc[x-1][y-1]==2 && y==7)
+         return 1;
+
+    if(TablaDeJoc[x][y]==1 && TablaDeJoc[x+2][y]==1 && TablaDeJoc[x+1][y-1]==2 && y==7)
+         return 1;
+
+    if(TablaDeJoc[x][y]==1 && TablaDeJoc[x][y-2]==1 && TablaDeJoc[x-1][y-1]==2 && x==2)
+        return 1;
+
+    if(TablaDeJoc[x][y]==1 && TablaDeJoc[x][y+2]==1 && TablaDeJoc[x-1][y+1]==2 && x==2)
+         return 1;
+
+    ///Un Caine incolteste vulpea la margine
+
+    if(x==2 && y==2 && TablaDeJoc[1][1]==2)
+        return 1;
+
+     if(x==2 && y==7 && TablaDeJoc[8][8]==2)
+        return 1;
+
+    return 0;
 
 }

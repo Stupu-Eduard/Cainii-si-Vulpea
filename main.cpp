@@ -9,7 +9,8 @@
 #pragma comment(lib, "winmm.lib")
 #include<math.h>
 #include<cstdlib>
-
+#include<time.h>
+  
 using namespace std;
 
 #define MAX 20
@@ -340,7 +341,7 @@ void mutarePiesa(int jucator, int mode)
             vulpej=coloana2;
         }
 
-        if (jucator == 1 && vulpeincoltita(vulpei, vulpej)) {
+        if (jucator == 1 && vulpeincoltita(vulpei, vulpej) && mode==1) {
             castigat(1); // Dogs win
         }
         if( (jucator == 2 && linia2 == 8) || (caine[1][0]<vulpei && caine[2][0]<vulpei && caine[3][0]<vulpei && caine[4][0]<vulpei) )
@@ -462,7 +463,7 @@ void mutarePC(int jucator, int dificulty)
             {
 
               int col = 2;
-              for (int i=0; i<=3; i++)
+              for (int i=1; i<=4; i++)
                 {
                     caine[i][0] = 8; // All dogs start in row 8
                     caine[i][1] = col; // Assign column positions
@@ -835,12 +836,14 @@ void PvC_dificulty_window(int jucator)
                 {
                     //PvC_dificulty_window(2);
                     tabla(2);
+                    srand(time(NULL));
                     mutarePvC(2,1);
                 }
                 if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
                 {
                     //PvC_dificulty_window(1);
                     tabla(2);
+                    //srand(time(NULL))
                     mutarePvC(2,2);
                 }
 
@@ -862,6 +865,7 @@ void PvC_dificulty_window(int jucator)
                 {
                     //PvC_dificulty_window(2);
                     tabla(2);
+                    srand(time(NULL));
                     mutarePvC(1,1);
                 }
                 if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
@@ -885,7 +889,7 @@ void moveDog_rand()
 
     for(int i=0; i<10; i++)
     {
-        int dog=rand()%4;
+        int dog=rand()%4+1;
         int dir=rand()%2; // Alege o direcție aleatorie noua
         int newX = caine[dog][0]+dx[dir];
         int newY = caine[dog][1]+dy[dir];
@@ -916,36 +920,48 @@ void moveFox_rand(int& foxX, int& foxY)
     int dx[]={-1, 1, -1, 1};
     int dy[]={-1, -1, 1, 1};
 
-    //if(vulpeincoltita(foxX,foxY))
-        //castigat(1);
+
+    if(vulpeincoltita(foxX,foxY))
+    {
+        //fout<<"AICI ESTE BUBA";
+        castigat(1);
+        return;
+    }
 
 
-    for(int i=0; i<10; i++)
+    bool moved=false;
+    for(int i=0; !moved; i++)
     {
         int dir=rand()%4; // Alege o direcție aleatorie noua
         int newX = foxX+dx[dir];
         int newY = foxY+dy[dir];
 
+
         if (miscarevalida(newX, newY))
        {
-            if(newX==8)
+            if(newX==8 || (caine[1][0]<newX && caine[2][0]<newX && caine[3][0]<newX && caine[4][0]<newX))
+            {
              castigat(2);
+             return;
+            }
 
             TablaDeJoc[foxX][foxY]=0;
             deseneazaPiesa(foxX, foxY, FUNDAL);
             foxX=newX;
             foxY=newY;
-            TablaDeJoc[foxX][foxY]=2;
+            TablaDeJoc[newX][newY]=2;
             deseneazaPiesa(foxX, foxY, culoare[2]);
 
-            if(vulpeincoltita(foxX,foxY))
-               castigat(1);
+            //if(vulpeincoltita(foxX,foxY))
+               //castigat(1);
 
-             break;
+             //break;
+             moved=true;
 
        }
 
     }
+
 }
 
 int cainii_incoltesc(int x, int y)

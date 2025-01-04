@@ -10,7 +10,7 @@
 #include<math.h>
 #include<cstdlib>
 #include<time.h>
-  
+
 using namespace std;
 
 #define MAX 20
@@ -341,11 +341,13 @@ void mutarePiesa(int jucator, int mode)
             vulpej=coloana2;
         }
 
-        if (jucator == 1 && vulpeincoltita(vulpei, vulpej) && mode==1) {
+        if (jucator == 1 && vulpeincoltita(vulpei, vulpej) && mode==1)
+        {
             castigat(1); // Dogs win
         }
         if( (jucator == 2 && linia2 == 8) || (caine[1][0]<vulpei && caine[2][0]<vulpei && caine[3][0]<vulpei && caine[4][0]<vulpei) )
             castigat(2);// Fox wins by reaching row 8
+
 }
 
 
@@ -524,6 +526,7 @@ void mutarePC(int jucator, int dificulty)
             currentColumn = caine[bestcaine][1];
             currentLine = caine[bestcaine][0];
 
+
             if (sens[bestcaine] == 's') // Move diagonally left
             {
                 TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
@@ -544,6 +547,9 @@ void mutarePC(int jucator, int dificulty)
                 caine[bestcaine][0] = currentLine - 1;
                 caine[bestcaine][1] = currentColumn + 1;
             }
+
+            if(cainii_incoltesc(caine[bestcaine][0],caine[bestcaine][1]))
+                castigat(1);
         }
         // **Fallback Strategy**: Find the highest dog and advance it forward
         else
@@ -568,6 +574,7 @@ void mutarePC(int jucator, int dificulty)
             currentColumn = caine[selectedDog][1];
             currentLine = caine[selectedDog][0];
 
+            
             if (sens[selectedDog] == 's') // Move diagonally left
             {
                 TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
@@ -588,6 +595,9 @@ void mutarePC(int jucator, int dificulty)
                 caine[selectedDog][0] = currentLine - 1;
                 caine[selectedDog][1] = currentColumn + 1;
             }
+
+             if(cainii_incoltesc(caine[selectedDog][0],caine[selectedDog][1]))
+                castigat(1);
         }
 
         fout<<"Jocul "<<cnt<<":"<<endl;
@@ -966,6 +976,7 @@ void moveFox_rand(int& foxX, int& foxY)
 
 int cainii_incoltesc(int x, int y)
 {
+
     ///Cainii incoltesc vulpea la mijloc
      if(TablaDeJoc[x][y]==1 && TablaDeJoc[x-2][y]==1 && TablaDeJoc[x-1][y-1]==2 && TablaDeJoc[x][y-2]==1 && TablaDeJoc[x-2][y-2]==1)
         return 1;

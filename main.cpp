@@ -222,7 +222,7 @@ void deseneazaPiesa(int linia, int coloana, int culoare)
     int xmijloc, ymijloc;
     // stergere
     setcolor(FUNDAL);
-    setfillstyle(SOLID_FILL,FUNDAL);
+    setfillstyle(SOLID_FILL,BLACK);
     x1=stanga+latura*(coloana-1);
     y1=sus+latura*(linia-1);
     x2=x1+latura;
@@ -322,7 +322,7 @@ void mutarePiesa(int jucator, int mode)
 
         TablaDeJoc[linia1][coloana1]=0;
         TablaDeJoc[linia2][coloana2]=jucator;
-        deseneazaPiesa(linia1,coloana1,FUNDAL);
+        deseneazaPiesa(linia1,coloana1,BLACK);
         deseneazaPiesa(linia2,coloana2,culoare[jucator]);
 
         fout<<"Jocul "<<cnt<<":"<<endl;
@@ -350,8 +350,6 @@ void mutarePiesa(int jucator, int mode)
 
 }
 
-
-
 int castigat(int jucator)
 {
     for(int i=1;i<=8;i++)
@@ -377,20 +375,35 @@ int castigat(int jucator)
 
 void desen()
 {
-    int i,j;
-    numar=8;
-    width=400;
-    height=400;
-    latura=width/numar;
-    sus=(getmaxy()-width)/2;
-    stanga=(getmaxx()-height)/2;
+    int i, j;
+    numar = 8;
+    width = 400;
+    height = 400;
+    latura = width / numar;
+    sus = (getmaxy() - width) / 2;
+    stanga = (getmaxx() - height) / 2;
     setbkcolor(FUNDAL);
     clearviewport();
-    setcolor(YELLOW);
-    for (i=1; i<=numar; i++)
-        for (j=1; j<=numar; j++)
-            rectangle(stanga+latura*(i-1),sus+latura*(j-1),stanga+latura*i,sus+latura*j);
+
+    for (i = 1; i <= numar; i++)
+    {
+        for (j = 1; j <= numar; j++)
+        {
+            int left = stanga + latura * (i - 1);
+            int top = sus + latura * (j - 1);
+            int right = stanga + latura * i;
+            int bottom = sus + latura * j;
+
+            if ((i + j) % 2 == 0)
+                setfillstyle(SOLID_FILL, BLACK);
+            else
+                setfillstyle(SOLID_FILL, WHITE);
+
+            bar(left, top, right, bottom);
+        }
+    }
 }
+
 
 void tabla(int mode)
 {
@@ -574,7 +587,7 @@ void mutarePC(int jucator, int dificulty)
             currentColumn = caine[selectedDog][1];
             currentLine = caine[selectedDog][0];
 
-            
+
             if (sens[selectedDog] == 's') // Move diagonally left
             {
                 TablaDeJoc[currentLine][currentColumn] = 0; // Clear old position on board
@@ -933,7 +946,6 @@ void moveFox_rand(int& foxX, int& foxY)
 
     if(vulpeincoltita(foxX,foxY))
     {
-        //fout<<"AICI ESTE BUBA";
         castigat(1);
         return;
     }
@@ -967,7 +979,6 @@ void moveFox_rand(int& foxX, int& foxY)
 
              //break;
              moved=true;
-
        }
 
     }

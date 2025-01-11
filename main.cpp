@@ -34,7 +34,6 @@ int culoare[3]= {FUNDAL,LIGHTRED,YELLOW};
 int TablaDeJoc[MAX][MAX];
 
 
-//void mutarePiesa(int jucator, int& mutarea);
 void drawButton(int x, int y, int latime, int inalt, const char* text, int culoare, int dimtext);
 void deseneazaPiesa(int linia, int coloana, int culoare);
 void mutarePiesa(int jucator, int mode);
@@ -70,10 +69,7 @@ void drawButton(int x, int y, int latime, int inalt, const char* text, int culoa
 {
     int lat_text,inalt_text,textx,texty;
 
-    //setfillstyle(SOLID_FILL,culoare);
-    //setcolor(BLACK);
     roundedRectangle(x, y, latime, inalt, 20, BLACK, culoare);
-    //floodfill(x+1, y+1, BLACK);
     setbkcolor(BLACK);
     setcolor(WHITE);
     settextstyle(SIMPLEX_FONT, HORIZ_DIR, dimtext);
@@ -230,10 +226,7 @@ void deseneazaPiesa(int linia, int coloana, int culoare)
     xmijloc=(x1+x2)/2;
     ymijloc=(y1+y2)/2;
     bar(xmijloc-23,ymijloc-23,xmijloc+23,ymijloc+23);
-    // afisez cerc rosu aprins
-    //setcolor(culoare);
-    //setfillstyle(SOLID_FILL,culoare);
-    //fillellipse(xmijloc,ymijloc,18,18);
+
     if(culoare==12)
         readimagefile("dogg_2.jpg",x1+5,y1+5,x1+45,y1+45);
      if(culoare==14)
@@ -322,7 +315,7 @@ void mutarePiesa(int jucator, int mode)
 
         TablaDeJoc[linia1][coloana1]=0;
         TablaDeJoc[linia2][coloana2]=jucator;
-        deseneazaPiesa(linia1,coloana1,BLACK);
+        deseneazaPiesa(linia1,coloana1,FUNDAL);
         deseneazaPiesa(linia2,coloana2,culoare[jucator]);
 
         fout<<"Jocul "<<cnt<<":"<<endl;
@@ -349,6 +342,8 @@ void mutarePiesa(int jucator, int mode)
             castigat(2);// Fox wins by reaching row 8
 
 }
+
+
 
 int castigat(int jucator)
 {
@@ -404,7 +399,6 @@ void desen()
     }
 }
 
-
 void tabla(int mode)
 {
     initPC=true;
@@ -446,7 +440,6 @@ void tabla(int mode)
 void mutarePvP()
 {
     cnt++;
-    //fout<<"Jocul "<<cnt<<":"<<endl;
 
     do
     {
@@ -661,7 +654,6 @@ void mutarePvC(int jucator, int dificulty)
         sens[i]='s';
 
     cnt++;
-    //fout<<"Jocul "<<cnt<<endl;
 
     do
     {
@@ -705,7 +697,6 @@ void PvC_window()
     int latbut=350;
     int inaltbut=200;
 
-    //setcolor(WHITE);
     readimagefile("Fox_1.jpg",0,screeny-500,360,screeny-140);
     readimagefile("Dog_1.jpg",screenx-405,screeny-440,screenx,screeny-160);
 
@@ -723,14 +714,10 @@ void PvC_window()
                 if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
                 {
                     PvC_dificulty_window(1);
-                    //tabla(2);
-                    //mutarePvC(2);
                 }
                 if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
                 {
                     PvC_dificulty_window(2);
-                    //tabla(2);
-                    //mutarePvC(1);
                 }
 
             }
@@ -857,16 +844,14 @@ void PvC_dificulty_window(int jucator)
 
                 if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
                 {
-                    //PvC_dificulty_window(2);
                     tabla(2);
                     srand(time(NULL));
                     mutarePvC(2,1);
                 }
                 if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
                 {
-                    //PvC_dificulty_window(1);
+
                     tabla(2);
-                    //srand(time(NULL))
                     mutarePvC(2,2);
                 }
 
@@ -886,14 +871,14 @@ void PvC_dificulty_window(int jucator)
 
                 if(x>=xb && x<=xb+latbut && y>=ybc && y<=ybc+inaltbut)
                 {
-                    //PvC_dificulty_window(2);
+
                     tabla(2);
                     srand(time(NULL));
                     mutarePvC(1,1);
                 }
                 if(x>=xb && x<=xb+latbut && y>=ybv && y<=ybv+inaltbut)
                 {
-                    //PvC_dificulty_window(1);
+
                     tabla(2);
                     mutarePvC(1,2);
                 }
@@ -974,11 +959,8 @@ void moveFox_rand(int& foxX, int& foxY)
             TablaDeJoc[newX][newY]=2;
             deseneazaPiesa(foxX, foxY, culoare[2]);
 
-            //if(vulpeincoltita(foxX,foxY))
-               //castigat(1);
-
-             //break;
              moved=true;
+
        }
 
     }
